@@ -27,7 +27,5 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 
-console.log("Email test route loaded");
-
 
 module.exports = app;

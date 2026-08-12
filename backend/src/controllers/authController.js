@@ -2,125 +2,204 @@ const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
+const { sendVerificationEmail } = require("../services/emailService");
 
 
 // REGISTER USER
 
 
 const registerUser = async (req, res) => {
+    try {
+        const { name, email, password, confirmPassword } = req.body;
+
+
+        // Validate required fields
+
+
+        if (!name || !email || !password || !confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "All fields are required",
+            });
+        }
+
+
+        // Check password confirmation
+
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Passwords do not match",
+            });
+        }
+
+
+        // Validate password length
+
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: "Password must be at least 6 characters long",
+            });
+        }
+
+
+        // Normalize email
+
+
+        const normalizedEmail = email.toLowerCase().trim();
+
+
+        // Check if user already exists
+
+
+        const existingUser = await User.findOne({
+            email: normalizedEmail,
+        });
+
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: "An account with this email already exists",
+            });
+        }
+
+
+        // Hash password
+
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+
+        // Generate email verification token
+
+
+        const verificationToken = crypto.randomBytes(32).toString("hex");
+
+        const verificationTokenExpiry =
+            Date.now() + 15 * 60 * 1000; // 15 minutes
+
+
+        // Create user
+
+
+        const user = await User.create({
+            name: name.trim(),
+            email: normalizedEmail,
+            password: hashedPassword,
+            isVerified: false,
+            verificationToken,
+            verificationTokenExpiry,
+        });
+
+        await sendVerificationEmail(
+            user.email,
+            user.name,
+            verificationToken
+        );
+
+
+        // Response
+
+
+        return res.status(201).json({
+            success: true,
+            message:
+                "Account created successfully. Please verify your email.",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                isVerified: user.isVerified,
+            },
+        });
+
+    } catch (error) {
+
+        console.error("Register error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error while creating account",
+        });
+    }
+};
+
+
+// VERIFY EMAIL
+
+const verifyEmail = async (req, res) => {
   try {
-    const { name, email, password, confirmPassword } = req.body;
+    const { token } = req.params;
 
-
-    // Validate required fields
-
-
-    if (!name || !email || !password || !confirmPassword) {
+    // Check if token exists
+    if (!token) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "Verification token is required",
       });
     }
 
-
-    // Check password confirmation
-
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Passwords do not match",
-      });
-    }
-
-
-    // Validate password length
-
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must be at least 6 characters long",
-      });
-    }
-
-
-    // Normalize email
-
-
-    const normalizedEmail = email.toLowerCase().trim();
-
-
-    // Check if user already exists
-
-
-    const existingUser = await User.findOne({
-      email: normalizedEmail,
+    // Find user using verification token
+    const user = await User.findOne({
+      verificationToken: token,
     });
 
-    if (existingUser) {
-      return res.status(409).json({
+    // Token does not exist
+    if (!user) {
+      return res.status(400).json({
         success: false,
-        message: "An account with this email already exists",
+        message: "Invalid or expired verification link",
       });
     }
 
+    // Check token expiry
+    if (
+      !user.verificationTokenExpiry ||
+      user.verificationTokenExpiry < new Date()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification link has expired",
+      });
+    }
 
-    // Hash password
+    // Already verified
+    if (user.isVerified) {
+      return res.status(200).json({
+        success: true,
+        message: "Email is already verified",
+      });
+    }
 
+    // Verify user
+    user.isVerified = true;
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Remove verification token after successful verification
+    user.verificationToken = null;
+    user.verificationTokenExpiry = null;
 
+    await user.save();
 
-    // Generate email verification token
-
-
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-
-    const verificationTokenExpiry =
-      Date.now() + 15 * 60 * 1000; // 15 minutes
-
-
-    // Create user
-
-
-    const user = await User.create({
-      name: name.trim(),
-      email: normalizedEmail,
-      password: hashedPassword,
-      isVerified: false,
-      verificationToken,
-      verificationTokenExpiry,
-    });
-
-
-    // Response
-
-
-    return res.status(201).json({
+    return res.status(200).json({
       success: true,
-      message:
-        "Account created successfully. Please verify your email.",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        isVerified: user.isVerified,
-      },
+      message: "Email verified successfully",
     });
 
   } catch (error) {
-
-    console.error("Register error:", error);
+    console.error("Verify email error:", error);
 
     return res.status(500).json({
       success: false,
-      message: "Server error while creating account",
+      message: "Server error while verifying email",
     });
   }
 };
 
 
 module.exports = {
-  registerUser,
+    registerUser,
+    verifyEmail,
 };
