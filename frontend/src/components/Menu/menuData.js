@@ -2,10 +2,10 @@ const menuData = {
   Collection: [
     "Our Collections",
     "Find Your Timepiece",
-    "New Models",
-    "Movements",
-    "Jewelry & Accessories",
+    "New Models"
   ],
 };
+
+
 
 export default menuData;

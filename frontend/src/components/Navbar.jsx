@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaBars, FaSearch, FaShoppingBag, FaUser } from "react-icons/fa";
 import Menu from "./Menu/Menu";
 
-function Navbar() {
+function Navbar({ light = false }) {
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -32,7 +32,11 @@ function Navbar() {
           showNavbar ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <nav className="flex items-center justify-between px-10 py-6 text-white">
+        <nav
+          className={`flex items-center justify-between px-10 py-6 transition-all duration-500 ${
+            light ? "text-[#B08A58]" : "text-white"
+          }`}
+        >
 
           {/* Left */}
 
@@ -47,25 +51,41 @@ function Navbar() {
           {/* Center */}
 
           <div className="text-center">
-            <h1 className="text-2xl font-light tracking-[8px]">
+
+            <h1
+              className={`text-2xl font-light tracking-[8px] ${
+                light ? "text-[#2A2A2A]" : "text-white"
+              }`}
+            >
               LUXURY WATCH
             </h1>
 
-            <p className="text-xs tracking-[6px] text-gray-300">
+            <p
+              className={`text-xs tracking-[6px] ${
+                light ? "text-[#8B8B8B]" : "text-gray-300"
+              }`}
+            >
               TIMEPIECES
             </p>
+
           </div>
 
           {/* Right */}
 
           <div className="flex items-center gap-6">
+
             <FaUser className="cursor-pointer" />
+
             <FaShoppingBag className="cursor-pointer" />
+
             <FaSearch className="cursor-pointer" />
+
           </div>
 
         </nav>
       </header>
+
+      {/* Menu */}
 
       <Menu
         isOpen={isMenuOpen}

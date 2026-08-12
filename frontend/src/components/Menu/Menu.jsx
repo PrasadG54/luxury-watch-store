@@ -9,8 +9,8 @@ function Menu({ isOpen, onClose }) {
   return (
     <div
       className={`fixed inset-0 z-[999] transition-all duration-500 ${isOpen
-          ? "bg-black/10 backdrop-blur-sm"
-          : "pointer-events-none bg-transparent"
+        ? "bg-black/10 backdrop-blur-sm"
+        : "pointer-events-none bg-transparent"
         }`}
     >
       {/* Drawer */}
@@ -94,15 +94,6 @@ function Menu({ isOpen, onClose }) {
                 Points of Sale
               </Link>
 
-              <Link
-                to="/careers"
-                onClick={onClose}
-                onMouseEnter={() => setShowCollection(false)}
-                className="text-[20px] font-light tracking-wide text-[#A67C52] hover:text-[#C49A6C] transition"
-              >
-                Careers
-              </Link>
-
             </nav>
 
           </div>
@@ -112,8 +103,8 @@ function Menu({ isOpen, onClose }) {
 
         <div
           className={`overflow-hidden transition-all duration-500 ${showCollection
-              ? "w-[340px] opacity-100"
-              : "w-0 opacity-0"
+            ? "w-[340px] opacity-100"
+            : "w-0 opacity-0"
             }`}
         >
           <div className="h-full bg-[#FCFBF9] border-l border-[#ECE7DF] px-12 pt-35">
@@ -154,6 +145,7 @@ function Menu({ isOpen, onClose }) {
 
           </div>
         </div>
+
 
       </div>
     </div>
