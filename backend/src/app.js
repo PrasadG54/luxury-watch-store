@@ -4,6 +4,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const storeRoutes = require("./routes/storeRoutes");
+const appointmentRoutes = require("./routes/appointmentRoutes");
 
 const app = express();
 
@@ -31,6 +32,11 @@ app.use("/api/auth", authRoutes);
 // STORE ROUTES
 
 app.use("/api/stores", storeRoutes);
+
+
+// APPOINTMENT ROUTES
+
+app.use("/api/appointments", appointmentRoutes);
 
 
 module.exports = app;
