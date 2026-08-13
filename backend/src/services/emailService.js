@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 
 
-// =====================================================
 // GMAIL TRANSPORTER
-// =====================================================
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -15,9 +13,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
-// =====================================================
 // SEND TEST EMAIL
-// =====================================================
 
 const sendTestEmail = async (email) => {
   const mailOptions = {
@@ -112,9 +108,7 @@ const sendTestEmail = async (email) => {
 };
 
 
-// =====================================================
 // SEND VERIFICATION EMAIL
-// =====================================================
 
 const sendVerificationEmail = async (
   email,
@@ -301,9 +295,7 @@ const sendVerificationEmail = async (
 };
 
 
-// =====================================================
 // EXPORT
-// =====================================================
 
 module.exports = {
   sendTestEmail,
