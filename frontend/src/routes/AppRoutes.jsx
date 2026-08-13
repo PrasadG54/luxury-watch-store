@@ -12,6 +12,8 @@ import ProductDetails from "../pages/ProductDetails";
 import Cart from "../pages/Cart";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import Account from "../pages/Account";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
   return (
@@ -30,6 +32,9 @@ function AppRoutes() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/account" element={<Account />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
