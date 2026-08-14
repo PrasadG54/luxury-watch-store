@@ -295,9 +295,163 @@ const sendVerificationEmail = async (
 };
 
 
+
+// SEND APPOINTMENT CONFIRMATION EMAIL
+
+const sendAppointmentConfirmationEmail = async (
+  email,
+  name,
+  appointment,
+  pdfBuffer
+) => {
+  const mailOptions = {
+    from: `"Luxury Watch Store" <${process.env.EMAIL_USERNAME}>`,
+    to: email,
+
+    subject: `Appointment Confirmed - ${appointment.bookingReference}`,
+
+    html: `
+      <!DOCTYPE html>
+
+      <html>
+        <body
+          style="
+            margin: 0;
+            padding: 40px 20px;
+            background-color: #f7f5f1;
+            font-family: Arial, sans-serif;
+            color: #292929;
+          "
+        >
+
+          <div
+            style="
+              max-width: 600px;
+              margin: auto;
+              background-color: #ffffff;
+              padding: 50px 40px;
+              text-align: center;
+            "
+          >
+
+            <p
+              style="
+                color: #a88d6a;
+                letter-spacing: 5px;
+                font-size: 12px;
+                text-transform: uppercase;
+              "
+            >
+              Luxury Watch
+            </p>
+
+            <h1
+              style="
+                color: #292929;
+                font-size: 28px;
+                font-weight: 300;
+                letter-spacing: 2px;
+              "
+            >
+              Appointment Confirmed
+            </h1>
+
+            <p
+              style="
+                color: #555555;
+                font-size: 15px;
+                line-height: 1.8;
+              "
+            >
+              Hello ${name},
+            </p>
+
+            <p
+              style="
+                color: #666666;
+                font-size: 15px;
+                line-height: 1.8;
+              "
+            >
+              Your appointment with Luxury Watch Store has been
+              successfully confirmed.
+            </p>
+
+            <div
+              style="
+                margin: 30px 0;
+                padding: 25px;
+                background-color: #f7f5f1;
+                text-align: left;
+              "
+            >
+
+              <p style="margin: 8px 0;">
+                <strong>Booking Reference:</strong>
+                ${appointment.bookingReference}
+              </p>
+
+              <p style="margin: 8px 0;">
+                <strong>Store:</strong>
+                ${appointment.store.name}
+              </p>
+
+              <p style="margin: 8px 0;">
+                <strong>Date:</strong>
+                ${appointment.appointmentDate}
+              </p>
+
+              <p style="margin: 8px 0;">
+                <strong>Time:</strong>
+                ${appointment.appointmentTime}
+              </p>
+
+            </div>
+
+            <p
+              style="
+                color: #666666;
+                font-size: 14px;
+                line-height: 1.8;
+              "
+            >
+              Your appointment confirmation PDF is attached
+              to this email.
+            </p>
+
+            <p
+              style="
+                color: #999999;
+                font-size: 12px;
+                margin-top: 30px;
+              "
+            >
+              Please keep this confirmation for your records.
+            </p>
+
+          </div>
+
+        </body>
+      </html>
+    `,
+
+    attachments: [
+      {
+        filename: `appointment-${appointment.bookingReference}.pdf`,
+        content: pdfBuffer,
+        contentType: "application/pdf",
+      },
+    ],
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+
 // EXPORT
 
 module.exports = {
   sendTestEmail,
   sendVerificationEmail,
+  sendAppointmentConfirmationEmail,
 };

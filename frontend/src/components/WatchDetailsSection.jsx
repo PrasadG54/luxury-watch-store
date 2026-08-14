@@ -470,7 +470,7 @@ function WatchDetailsSection({ watch }) {
           </p>
 
           <Link
-            to="/points-of-sale"
+            to="/point-of-sale"
             className="
               inline-block
               bg-[#A08C76]

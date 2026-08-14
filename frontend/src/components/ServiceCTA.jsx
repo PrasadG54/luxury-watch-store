@@ -31,19 +31,9 @@ function ServiceCTA() {
 
         <div className="flex flex-wrap justify-center gap-6">
 
-          <Link
-            to="/points-of-sale"
-            className="border border-[#B08A58] text-[#B08A58]
-            px-10 py-4 uppercase tracking-[3px]
-            hover:bg-[#B08A58]
-            hover:text-white
-            transition duration-300"
-          >
-            Points of Sale
-          </Link>
 
           <Link
-            to="/points-of-sale"
+            to="/point-of-sale"
             className="bg-[#B08A58] text-white
             px-10 py-4 uppercase tracking-[3px]
             hover:bg-[#9C774B]

@@ -86,7 +86,7 @@ function Menu({ isOpen, onClose }) {
               </Link>
 
               <Link
-                to="/points-of-sale"
+                to="/point-of-sale"
                 onClick={onClose}
                 onMouseEnter={() => setShowCollection(false)}
                 className="text-[20px] font-light tracking-wide text-[#A67C52] hover:text-[#C49A6C] transition"

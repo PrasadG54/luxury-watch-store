@@ -1,10 +1,15 @@
 const Appointment = require("../models/appointment");
 const Store = require("../models/store");
+const User = require("../models/User");
+const generateAppointmentPdf = require("../utils/appointmentPdf");
+const { sendAppointmentConfirmationEmail } = require("../services/emailService");
+
+const { PassThrough } = require("stream");
 
 
-// ==========================================
+
 // CREATE APPOINTMENT
-// ==========================================
+
 
 const createAppointment = async (req, res) => {
     try {
@@ -16,9 +21,9 @@ const createAppointment = async (req, res) => {
             appointmentTime,
         } = req.body;
 
-        // ===============================
+
         // BASIC VALIDATION
-        // ===============================
+
 
         if (
             !customer ||
@@ -35,9 +40,9 @@ const createAppointment = async (req, res) => {
             });
         }
 
-        // ===============================
+
         // FIND STORE
-        // ===============================
+
 
         const store = await Store.findById(storeId);
 
@@ -48,15 +53,15 @@ const createAppointment = async (req, res) => {
             });
         }
 
-        // ===============================
+
         // GENERATE BOOKING REFERENCE
-        // ===============================
+
 
         const bookingReference = `LW-${Date.now()}`;
 
-        // ===============================
+
         // CREATE APPOINTMENT
-        // ===============================
+
 
         const appointment = await Appointment.create({
             user: req.user.userId,
@@ -84,9 +89,59 @@ const createAppointment = async (req, res) => {
             bookingReference,
         });
 
-        // ===============================
+
+
+        // GET REGISTERED USER
+
+
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Registered user not found.",
+            });
+        }
+
+
+        // GENERATE PDF BUFFER
+
+
+        const pdfStream = new PassThrough();
+        const pdfChunks = [];
+
+        pdfStream.on("data", (chunk) => {
+            pdfChunks.push(chunk);
+        });
+
+        const pdfReady = new Promise((resolve, reject) => {
+            pdfStream.on("end", resolve);
+            pdfStream.on("error", reject);
+        });
+
+        pdfStream.setHeader = () => {};
+
+        generateAppointmentPdf(appointment, pdfStream);
+
+        await pdfReady;
+
+        const pdfBuffer = Buffer.concat(pdfChunks);
+
+
+        // SEND EMAIL WITH PDF
+
+
+        await sendAppointmentConfirmationEmail(
+            user.email,
+            user.name,
+            appointment,
+            pdfBuffer
+        );
+
+
+
         // RESPONSE
-        // ===============================
+
 
         res.status(201).json({
             success: true,
@@ -105,9 +160,9 @@ const createAppointment = async (req, res) => {
 };
 
 
-// ==========================================
+
 // GET MY APPOINTMENTS
-// ==========================================
+
 
 const getMyAppointments = async (req, res) => {
     try {
@@ -134,7 +189,123 @@ const getMyAppointments = async (req, res) => {
 };
 
 
+
+// GENERATE APPOINTMENT PDF
+
+
+const generateAppointmentPdfController = async (req, res) => {
+  try {
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      user: req.user.userId,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment not found.",
+      });
+    }
+
+    generateAppointmentPdf(appointment, res);
+
+  } catch (error) {
+    console.error("Generate appointment PDF error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to generate appointment PDF.",
+    });
+  }
+};
+
+
+// ==========================================
+// SEND APPOINTMENT PDF TO EMAIL AGAIN
+// ==========================================
+
+const sendAppointmentPdfEmailController = async (req, res) => {
+    try {
+        // Find appointment belonging to logged-in user
+        const appointment = await Appointment.findOne({
+            _id: req.params.id,
+            user: req.user.userId,
+        });
+
+        if (!appointment) {
+            return res.status(404).json({
+                success: false,
+                message: "Appointment not found.",
+            });
+        }
+
+        // Find registered user
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "Registered user not found.",
+            });
+        }
+
+        // ==========================================
+        // GENERATE PDF BUFFER
+        // ==========================================
+
+        const pdfStream = new PassThrough();
+        const pdfChunks = [];
+
+        pdfStream.on("data", (chunk) => {
+            pdfChunks.push(chunk);
+        });
+
+        const pdfReady = new Promise((resolve, reject) => {
+            pdfStream.on("end", resolve);
+            pdfStream.on("error", reject);
+        });
+
+        pdfStream.setHeader = () => {};
+
+        generateAppointmentPdf(appointment, pdfStream);
+
+        await pdfReady;
+
+        const pdfBuffer = Buffer.concat(pdfChunks);
+
+        // ==========================================
+        // SEND EMAIL
+        // ==========================================
+
+        await sendAppointmentConfirmationEmail(
+            user.email,
+            user.name,
+            appointment,
+            pdfBuffer
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Appointment PDF has been sent to your registered email.",
+        });
+
+    } catch (error) {
+        console.error(
+            "Send appointment PDF email error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Unable to send appointment PDF email.",
+        });
+    }
+};
+
+
 module.exports = {
     createAppointment,
     getMyAppointments,
+    generateAppointmentPdfController,
+    sendAppointmentPdfEmailController,
 };

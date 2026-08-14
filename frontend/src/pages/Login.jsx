@@ -2,6 +2,7 @@ import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
+import Navbar from "../components/Navbar";
 
 function Login() {
   const navigate = useNavigate();
