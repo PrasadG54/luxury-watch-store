@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaBars, FaSearch, FaShoppingBag, FaUser } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
-import Menu from "./Menu/Menu";
+import Menu from "./Menu";
 
 function Navbar({ light = false }) {
   const [showNavbar, setShowNavbar] = useState(true);
