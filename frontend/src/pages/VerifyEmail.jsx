@@ -20,7 +20,7 @@ function VerifyEmail() {
     const verifyEmail = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/auth/verify/${token}`
+          `${import.meta.env.VITE_API_URL}/auth/verify/${token}`
         );
 
         const data = await response.json();

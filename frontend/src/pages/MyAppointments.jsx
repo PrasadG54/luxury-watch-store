@@ -53,7 +53,7 @@ function MyAppointments() {
             }
 
             const response = await fetch(
-                `http://localhost:5000/api/appointments/${appointmentId}/pdf`,
+                `${import.meta.env.VITE_API_URL}/appointments/${appointmentId}/pdf`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,

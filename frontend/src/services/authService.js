@@ -1,8 +1,6 @@
-const API_URL = "http://localhost:5000/api/auth";
-
+const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 // REGISTER
-
 export const registerUser = async (userData) => {
   const response = await fetch(`${API_URL}/register`, {
     method: "POST",
@@ -21,9 +19,7 @@ export const registerUser = async (userData) => {
   return data;
 };
 
-
 // LOGIN
-
 export const loginUser = async (credentials) => {
   const response = await fetch(`${API_URL}/login`, {
     method: "POST",
@@ -42,9 +38,7 @@ export const loginUser = async (credentials) => {
   return data;
 };
 
-
 // GET CURRENT USER
-
 export const getCurrentUser = async (token) => {
   const response = await fetch(`${API_URL}/me`, {
     method: "GET",
@@ -62,9 +56,7 @@ export const getCurrentUser = async (token) => {
   return data;
 };
 
-
 // LOGOUT
-
 export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
